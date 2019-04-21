@@ -49,8 +49,8 @@ public class FlowCount {
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         if (args == null || args.length == 0) {
             args = new String[2];
-            args[0] = "hdfs://master:9000/flowsum/input";
-            args[1] = "hdfs://master:9000/flowsum/output";
+            args[0] = "hdfs://node1:9000/flowsum/input";
+            args[1] = "hdfs://node1:9000/flowsum/output";
         }
         Configuration conf = new Configuration();
 		/*conf.set("mapreduce.framework.name", "yarn");
