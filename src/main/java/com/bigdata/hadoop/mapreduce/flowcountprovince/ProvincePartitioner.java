@@ -1,4 +1,4 @@
-package com.bigdata.hadoop.mapreduce.provinceflowcount;
+package com.bigdata.hadoop.mapreduce.flowcountprovince;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Partitioner;

@@ -1,4 +1,4 @@
-package com.bigdata.hadoop.mapreduce.provinceflowcount;
+package com.bigdata.hadoop.mapreduce.flowcountprovince;
 
 import java.io.IOException;
 
