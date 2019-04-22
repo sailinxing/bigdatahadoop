@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.lib.CombineTextInputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -42,10 +43,20 @@ public class WordcountClusterDriver {
 		conf.set("fs.defaultFS", "hdfs://node1:9000/");
 
         Job job = Job.getInstance(conf);
-//提交到集群需要的jar包
+       //提交到集群需要的jar包
         job.setJar("d:/testhadoopdata/jar/wc.jar");
         //指定本程序的jar包所在的本地路径
-//		job.setJarByClass(WordcountClusterDriver.class);
+        //		job.setJarByClass(WordcountClusterDriver.class);
+
+
+        //指定需要使用combiner，以及用哪个类作为combiner的逻辑
+		/*job.setCombinerClass(WordcountCombiner.class);*/
+//        job.setCombinerClass(WordcountReducer.class);
+
+        //如果不设置InputFormat，它默认用的是TextInputformat.class
+//        job.setInputFormatClass(CombineTextInputFormat.class);
+//        CombineTextInputFormat.setMaxInputSplitSize(job, 4194304);
+//        CombineTextInputFormat.setMinInputSplitSize(job, 2097152);
 
         //指定本业务job要使用的mapper/Reducer业务类
         job.setMapperClass(WordcountMapper.class);
