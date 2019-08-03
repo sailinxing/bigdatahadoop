@@ -19,26 +19,27 @@ import java.util.ArrayList;
 
 /**
  * 订单表和商品表合到一起
- order.txt(订单id, 日期, 商品编号, 数量)
- 1001	20150710	P0001	2
- 1002	20150710	P0001	3
- 1002	20150710	P0002	3
- 1003	20150710	P0003	3
- product.txt(商品编号, 商品名字, 价格, 数量)
- P0001	小米5	1001	2
- P0002	锤子T1	1000	3
- P0003	锤子	1002	4
+ * order.txt(订单id, 日期, 商品编号, 数量)
+ * 1001	20150710	P0001	2
+ * 1002	20150710	P0001	3
+ * 1002	20150710	P0002	3
+ * 1003	20150710	P0003	3
+ * product.txt(商品编号, 商品名字, 价格, 数量)
+ * P0001	小米5	1001	2
+ * P0002	锤子T1	1000	3
+ * P0003	锤子	1002	4
  */
 
 public class RrightJoin {
-    static InfoBean bean=new InfoBean();
-    static Text k=new Text();
-    static class RrightJoinMapper extends Mapper<LongWritable,Text,Text,InfoBean>{
+    static InfoBean bean = new InfoBean();
+    static Text k = new Text();
+
+    static class RrightJoinMapper extends Mapper<LongWritable, Text, Text, InfoBean> {
 
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             String line = value.toString();
-            FileSplit inputSplit= (FileSplit) context.getInputSplit();
+            FileSplit inputSplit = (FileSplit) context.getInputSplit();
             // 通过文件名判断是哪种数据
             String pid = "";
             String name = inputSplit.getPath().getName();
@@ -56,30 +57,30 @@ public class RrightJoin {
 
             }
             k.set(pid);
-            context.write(k,bean);
+            context.write(k, bean);
 
         }
     }
-    static class RrightReducer extends Reducer<Text,InfoBean,InfoBean,NullWritable>{
+
+    static class RrightReducer extends Reducer<Text, InfoBean, InfoBean, NullWritable> {
 
         @Override
         protected void reduce(Text key, Iterable<InfoBean> values, Context context) throws IOException, InterruptedException {
-            InfoBean pdBean=new InfoBean();
-            ArrayList<InfoBean> orderBeans=new ArrayList<>();
-            for(InfoBean bean:values){
-                if("1".equals(bean.getFlag())){//产品的
+            InfoBean pdBean = new InfoBean();
+            ArrayList<InfoBean> orderBeans = new ArrayList<>();
+            for (InfoBean bean : values) {
+                if ("1".equals(bean.getFlag())) {//产品的
                     try {
-                        BeanUtils.copyProperties(pdBean,bean);
+                        BeanUtils.copyProperties(pdBean, bean);
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     } catch (InvocationTargetException e) {
                         e.printStackTrace();
                     }
-                }
-                else {
-                    InfoBean odbean=new InfoBean();
+                } else {
+                    InfoBean odbean = new InfoBean();
                     try {
-                        BeanUtils.copyProperties(odbean,bean);
+                        BeanUtils.copyProperties(odbean, bean);
                         orderBeans.add(odbean);
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
@@ -89,17 +90,18 @@ public class RrightJoin {
                 }
             }
             // 拼接两类数据形成最终结果
-            for(InfoBean bean:orderBeans){
+            for (InfoBean bean : orderBeans) {
                 bean.setPname(pdBean.getPname());
                 bean.setCategory_id(pdBean.getCategory_id());
                 bean.setPrice(pdBean.getPrice());
-                context.write(bean,NullWritable.get());
+                context.write(bean, NullWritable.get());
             }
         }
     }
+
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
-        Configuration conf=new Configuration();
-       conf.set("mapred.textoutputformat.separator", ",");
+        Configuration conf = new Configuration();
+        conf.set("mapred.textoutputformat.separator", ",");
 
 
         // 指定本程序的jar包所在的本地路径
@@ -113,10 +115,10 @@ public class RrightJoin {
 
         Job job = Job.getInstance(conf);
 
-       //提交到集群需要的jar包
+        //提交到集群需要的jar包
         job.setJar("d:/testhadoopdata/jar/join.jar");
 
-    //    job.setJarByClass(RrightJoin.class);
+        //    job.setJarByClass(RrightJoin.class);
         // 指定本业务job要使用的mapper/Reducer业务类
         job.setMapperClass(RrightJoinMapper.class);
         job.setReducerClass(RrightReducer.class);
@@ -135,7 +137,7 @@ public class RrightJoin {
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         // 将job中配置的相关参数，以及job所用的java类所在的jar包，提交给yarn去运行
-		/* job.submit(); */
+        /* job.submit(); */
         boolean res = job.waitForCompletion(true);
         System.exit(res ? 0 : 1);
     }
