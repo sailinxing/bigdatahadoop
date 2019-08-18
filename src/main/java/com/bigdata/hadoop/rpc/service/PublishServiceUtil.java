@@ -1,4 +1,5 @@
 package com.bigdata.hadoop.rpc.service;
+
 import com.bigdata.hadoop.rpc.protocol.ClientNamenodeProtocol;
 import com.bigdata.hadoop.rpc.protocol.IUserLoginService;
 import org.apache.hadoop.conf.Configuration;

@@ -18,14 +18,16 @@ import java.io.IOException;
 public class OrderSort {
     static class OrderSortMapper extends Mapper<LongWritable, Text, OrderBean, NullWritable> {
         OrderBean bean = new OrderBean();
+
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             String line = value.toString();
             String[] fields = StringUtils.split(line, ",");
-            bean.set(new Text(fields[0]),new DoubleWritable(Double.parseDouble(fields[1])));
-            context.write(bean,NullWritable.get());
+            bean.set(new Text(fields[0]), new DoubleWritable(Double.parseDouble(fields[1])));
+            context.write(bean, NullWritable.get());
         }
     }
+
     static class OrderSortReducer extends Reducer<OrderBean, NullWritable, OrderBean, NullWritable> {
 
 
@@ -35,6 +37,7 @@ public class OrderSort {
             context.write(key, NullWritable.get());
         }
     }
+
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf);
@@ -52,4 +55,4 @@ public class OrderSort {
         job.setNumReduceTasks(2);
         job.waitForCompletion(true);
     }
-    }
+}

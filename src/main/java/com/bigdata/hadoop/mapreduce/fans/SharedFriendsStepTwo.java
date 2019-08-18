@@ -14,34 +14,36 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class SharedFriendsStepTwo {
-    static class SharedFriendsStepTwoMapper extends Mapper<LongWritable,Text,Text,Text>{
+    static class SharedFriendsStepTwoMapper extends Mapper<LongWritable, Text, Text, Text> {
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             String line = value.toString();
             String[] fans_persons = line.split("\t");
-            String fans=fans_persons[0];
-            String persons=fans_persons[1];
-            String[] pers=persons.split(",");
+            String fans = fans_persons[0];
+            String persons = fans_persons[1];
+            String[] pers = persons.split(",");
             Arrays.sort(pers);
-            for(int i=0;i<pers.length-1;i++){
-                for(int j=i+1;j<pers.length;j++){
+            for (int i = 0; i < pers.length - 1; i++) {
+                for (int j = i + 1; j < pers.length; j++) {
                     // 发出 <人-人，好友> ，这样，相同的“人-人”对的所有好友就会到同1个reduce中去
-                    context.write(new Text(pers[i]+"-"+pers[j]),new Text(fans));
+                    context.write(new Text(pers[i] + "-" + pers[j]), new Text(fans));
                 }
             }
         }
     }
+
     static class SharedFriendsStepTwoReducer extends Reducer<Text, Text, Text, Text> {
 
         @Override
         protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-            StringBuffer sb=new StringBuffer();
-            for(Text fan:values){
+            StringBuffer sb = new StringBuffer();
+            for (Text fan : values) {
                 sb.append(fan).append(" ");
             }
-            context.write(key,new Text(sb.toString()));
+            context.write(key, new Text(sb.toString()));
         }
     }
+
     public static void main(String[] args) throws Exception {
 
         Configuration conf = new Configuration();

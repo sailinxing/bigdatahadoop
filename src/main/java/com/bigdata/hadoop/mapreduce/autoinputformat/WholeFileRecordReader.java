@@ -13,22 +13,21 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 import java.io.IOException;
+
 /**
- *
  * RecordReader的核心工作逻辑：
  * 通过nextKeyValue()方法去读取数据构造将返回的key   value
  * 通过getCurrentKey 和 getCurrentValue来返回上面构造好的key和value
  *
- *
  * @author
- *
  */
 
-public class WholeFileRecordReader extends RecordReader<NullWritable, BytesWritable>{
+public class WholeFileRecordReader extends RecordReader<NullWritable, BytesWritable> {
     private FileSplit fileSplit;
     private Configuration conf;
     private BytesWritable value = new BytesWritable();
     private boolean processed = false;
+
     @Override
     public void initialize(InputSplit inputSplit, TaskAttemptContext context) throws IOException, InterruptedException {
         this.fileSplit = (FileSplit) inputSplit;

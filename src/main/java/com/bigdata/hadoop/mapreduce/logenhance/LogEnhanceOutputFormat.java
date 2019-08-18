@@ -16,25 +16,24 @@ import java.io.IOException;
  * 然后再调用RecordWriter的write(k,v)方法将数据写出
  *
  * @author
- *
  */
-public class LogEnhanceOutputFormat extends FileOutputFormat<Text,NullWritable>{
+public class LogEnhanceOutputFormat extends FileOutputFormat<Text, NullWritable> {
     @Override
     public RecordWriter<Text, NullWritable> getRecordWriter(TaskAttemptContext context) throws IOException, InterruptedException {
-        FileSystem fs=FileSystem.get(context.getConfiguration());
+        FileSystem fs = FileSystem.get(context.getConfiguration());
         Path enhancePath = new Path("D:/testhadoopdata/input/logenhance/en/log.dat");
         Path tocrawlPath = new Path("D:/testhadoopdata/input/logenhance/crw/url.dat");
         FSDataOutputStream enhancedOs = fs.create(enhancePath);
         FSDataOutputStream tocrawlOs = fs.create(tocrawlPath);
         return new EnhanceRecordWriter(enhancedOs, tocrawlOs);
     }
+
     /**
      * 构造一个自己的recordwriter
      *
      * @author
-     *
      */
-    static class EnhanceRecordWriter extends RecordWriter<Text, NullWritable>{
+    static class EnhanceRecordWriter extends RecordWriter<Text, NullWritable> {
         FSDataOutputStream enhancedOs = null;
         FSDataOutputStream tocrawlOs = null;
 
@@ -43,6 +42,7 @@ public class LogEnhanceOutputFormat extends FileOutputFormat<Text,NullWritable>{
             this.enhancedOs = enhancedOs;
             this.tocrawlOs = tocrawlOs;
         }
+
         @Override
         public void write(Text text, NullWritable nullWritable) throws IOException, InterruptedException {
             String result = text.toString();

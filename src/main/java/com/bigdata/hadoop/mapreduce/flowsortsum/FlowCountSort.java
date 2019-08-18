@@ -14,7 +14,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 
 public class FlowCountSort {
-    static class FlowCountSortMapper extends Mapper<LongWritable,Text,FlowBean,Text>{
+    static class FlowCountSortMapper extends Mapper<LongWritable, Text, FlowBean, Text> {
         FlowBean bean = new FlowBean();
         Text v = new Text();
 
@@ -23,29 +23,30 @@ public class FlowCountSort {
             // 拿到的是上一个统计程序的输出结果，已经是各手机号的总流量信息
             String line = value.toString();
             String[] fields = line.split("\t");
-                String phoneNbr = fields[0];
-                long upFlow = Long.parseLong(fields[1]);
-                long dFlow = Long.parseLong(fields[2]);
-                bean.set(upFlow,dFlow);
-                v.set(phoneNbr);
-                context.write(bean,v);
+            String phoneNbr = fields[0];
+            long upFlow = Long.parseLong(fields[1]);
+            long dFlow = Long.parseLong(fields[2]);
+            bean.set(upFlow, dFlow);
+            v.set(phoneNbr);
+            context.write(bean, v);
 
         }
     }
+
     /**
      * 根据key来掉, 传过来的是对象, 每个对象都是不一样的, 所以每个对象都调用一次reduce方法
-     *
      */
-    static class  FlowCountSortReducer extends Reducer<FlowBean,Text,Text,FlowBean>{
+    static class FlowCountSortReducer extends Reducer<FlowBean, Text, Text, FlowBean> {
 
         @Override
         protected void reduce(FlowBean bean, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-           context.write(values.iterator().next(),bean);
+            context.write(values.iterator().next(), bean);
         }
     }
+
     public static void main(String[] args) throws Exception {
-        Configuration conf=new Configuration();
-        Job job=Job.getInstance(conf);
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf);
         //指定本程序的jar包所在的本地路径
         job.setJarByClass(FlowCountSort.class);
         //指定本业务job要使用的mapper/Reducer业务类
@@ -63,15 +64,15 @@ public class FlowCountSort {
 
         Path outPath = new Path(args[1]);
         FileSystem fs = FileSystem.get(conf);
-        if(fs.exists(outPath)){
+        if (fs.exists(outPath)) {
             fs.delete(outPath, true);
         }
         FileOutputFormat.setOutputPath(job, outPath);
 
         //将job中配置的相关参数，以及job所用的java类所在的jar包，提交给yarn去运行
-		/*job.submit();*/
+        /*job.submit();*/
         boolean res = job.waitForCompletion(true);
-        System.exit(res?0:1);
+        System.exit(res ? 0 : 1);
 
     }
 }

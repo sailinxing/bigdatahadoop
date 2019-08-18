@@ -11,11 +11,11 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 
 import java.io.IOException;
 
-public class WholeFileInputFormat extends FileInputFormat<NullWritable, BytesWritable>{
+public class WholeFileInputFormat extends FileInputFormat<NullWritable, BytesWritable> {
     @Override
     public RecordReader<NullWritable, BytesWritable> createRecordReader(InputSplit inputSplit, TaskAttemptContext context) throws IOException, InterruptedException {
-        WholeFileRecordReader reder=new WholeFileRecordReader();
-        reder.initialize(inputSplit,context);
+        WholeFileRecordReader reder = new WholeFileRecordReader();
+        reder.initialize(inputSplit, context);
         return reder;
     }
 

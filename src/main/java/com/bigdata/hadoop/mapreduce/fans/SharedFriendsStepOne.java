@@ -13,35 +13,37 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 
 public class SharedFriendsStepOne {
-    static  class SharedFriendStepOneMapper extends Mapper<LongWritable,Text,Text,Text>{
+    static class SharedFriendStepOneMapper extends Mapper<LongWritable, Text, Text, Text> {
 
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             // A:B,C,D,F,E,O
             String line = value.toString();
             String[] person_fans = line.split(":");
-            String person=person_fans[0];
-            String fans=person_fans[1];
+            String person = person_fans[0];
+            String fans = person_fans[1];
             String[] fanss = fans.split(",");
-            for(String fan:fanss){
+            for (String fan : fanss) {
                 // 输出<好友，人>
-                context.write(new Text(fan),new Text(person));
+                context.write(new Text(fan), new Text(person));
             }
 
         }
 
     }
-    static class SharedFriendsStepOneReducer extends Reducer<Text,Text,Text,Text>{
+
+    static class SharedFriendsStepOneReducer extends Reducer<Text, Text, Text, Text> {
 
         @Override
         protected void reduce(Text key, Iterable<Text> persons, Context context) throws IOException, InterruptedException {
-            StringBuffer sb=new StringBuffer();
-            for(Text person:persons){
+            StringBuffer sb = new StringBuffer();
+            for (Text person : persons) {
                 sb.append(person).append(",");
             }
-            context.write(key,new Text(sb.toString()));
+            context.write(key, new Text(sb.toString()));
         }
     }
+
     public static void main(String[] args) throws Exception {
 
         Configuration conf = new Configuration();

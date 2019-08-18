@@ -19,26 +19,27 @@ import java.util.ArrayList;
 
 /**
  * 订单表和商品表合到一起
- order.txt(订单id, 日期, 商品编号, 数量)
- 1001	20150710	P0001	2
- 1002	20150710	P0001	3
- 1002	20150710	P0002	3
- 1003	20150710	P0003	3
- product.txt(商品编号, 商品名字, 价格, 数量)
- P0001	小米5	1001	2
- P0002	锤子T1	1000	3
- P0003	锤子	1002	4
+ * order.txt(订单id, 日期, 商品编号, 数量)
+ * 1001	20150710	P0001	2
+ * 1002	20150710	P0001	3
+ * 1002	20150710	P0002	3
+ * 1003	20150710	P0003	3
+ * product.txt(商品编号, 商品名字, 价格, 数量)
+ * P0001	小米5	1001	2
+ * P0002	锤子T1	1000	3
+ * P0003	锤子	1002	4
  */
 
 public class RrightJoinLocal {
-    static InfoBean bean=new InfoBean();
-    static Text k=new Text();
-    static class RrightJoinMapper extends Mapper<LongWritable,Text,Text,InfoBean>{
+    static InfoBean bean = new InfoBean();
+    static Text k = new Text();
+
+    static class RrightJoinMapper extends Mapper<LongWritable, Text, Text, InfoBean> {
 
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             String line = value.toString();
-            FileSplit inputSplit= (FileSplit) context.getInputSplit();
+            FileSplit inputSplit = (FileSplit) context.getInputSplit();
             // 通过文件名判断是哪种数据
             String pid = "";
             String name = inputSplit.getPath().getName();
@@ -56,30 +57,30 @@ public class RrightJoinLocal {
 
             }
             k.set(pid);
-            context.write(k,bean);
+            context.write(k, bean);
 
         }
     }
-    static class RrightReducer extends Reducer<Text,InfoBean,InfoBean,NullWritable>{
+
+    static class RrightReducer extends Reducer<Text, InfoBean, InfoBean, NullWritable> {
 
         @Override
         protected void reduce(Text key, Iterable<InfoBean> values, Context context) throws IOException, InterruptedException {
-            InfoBean pdBean=new InfoBean();
-            ArrayList<InfoBean> orderBeans=new ArrayList<>();
-            for(InfoBean bean:values){
-                if("1".equals(bean.getFlag())){//产品的
+            InfoBean pdBean = new InfoBean();
+            ArrayList<InfoBean> orderBeans = new ArrayList<>();
+            for (InfoBean bean : values) {
+                if ("1".equals(bean.getFlag())) {//产品的
                     try {
-                        BeanUtils.copyProperties(pdBean,bean);
+                        BeanUtils.copyProperties(pdBean, bean);
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     } catch (InvocationTargetException e) {
                         e.printStackTrace();
                     }
-                }
-                else {
-                    InfoBean odbean=new InfoBean();
+                } else {
+                    InfoBean odbean = new InfoBean();
                     try {
-                        BeanUtils.copyProperties(odbean,bean);
+                        BeanUtils.copyProperties(odbean, bean);
                         orderBeans.add(odbean);
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
@@ -89,14 +90,15 @@ public class RrightJoinLocal {
                 }
             }
             // 拼接两类数据形成最终结果
-            for(InfoBean bean:orderBeans){
+            for (InfoBean bean : orderBeans) {
                 bean.setPname(pdBean.getPname());
                 bean.setCategory_id(pdBean.getCategory_id());
                 bean.setPrice(pdBean.getPrice());
-                context.write(bean,NullWritable.get());
+                context.write(bean, NullWritable.get());
             }
         }
     }
+
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         Configuration conf = new Configuration();
 
@@ -107,7 +109,7 @@ public class RrightJoinLocal {
 
         //本地模式运行mr程序时，输入输出的数据可以在本地，也可以在hdfs上
         //到底在哪里，就看以下两行配置你用哪行，默认就是file:///
-		/*conf.set("fs.defaultFS", "hdfs://192.168.9.113:9000/");*/
+        /*conf.set("fs.defaultFS", "hdfs://192.168.9.113:9000/");*/
         conf.set("fs.defaultFS", "file:///");
 
 
@@ -135,15 +137,13 @@ public class RrightJoinLocal {
         job.setOutputValueClass(NullWritable.class);
 
 
-
         //指定job的输入原始文件所在目录
-        FileInputFormat.setInputPaths(job,new Path(args[0]));
+        FileInputFormat.setInputPaths(job, new Path(args[0]));
         //指定job的输出结果所在目录
-        FileOutputFormat.setOutputPath(job,new Path(args[1]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
         //将job中配置的相关参数，以及job所用的java类所在的jar包，提交给yarn去运行
         boolean result = job.waitForCompletion(true);
-        System.exit(result?0:1);
-
+        System.exit(result ? 0 : 1);
 
 
     }

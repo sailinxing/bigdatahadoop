@@ -23,7 +23,7 @@ public class WeblogPreProcess {
             String line = value.toString();
             WebLogBean webLogBean = WebLogParser.parser(line);
             //可以插入一个静态资源过滤（.....）
-			/*WebLogParser.filterStaticResource(webLogBean);*/
+            /*WebLogParser.filterStaticResource(webLogBean);*/
             if (!webLogBean.isValid()) {
                 return;
             }

@@ -13,7 +13,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 
 public class FlowCount {
-    static  class FlowCountMapper extends Mapper<LongWritable,Text,Text,FlowBean>{
+    static class FlowCountMapper extends Mapper<LongWritable, Text, Text, FlowBean> {
 
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
@@ -22,7 +22,7 @@ public class FlowCount {
             //切分字段
             String[] fields = line.split(" ");
             //取出手机号
-            if(fields.length>3) {
+            if (fields.length > 3) {
                 String phoneNum = fields[1];
                 //取出上行流量下行流量
                 long upFlow = Long.parseLong(fields[fields.length - 3]);
@@ -31,21 +31,23 @@ public class FlowCount {
             }
         }
     }
-    static  class  FlowCountReducer extends Reducer<Text,FlowBean,Text,FlowBean>{
+
+    static class FlowCountReducer extends Reducer<Text, FlowBean, Text, FlowBean> {
 
         @Override
         protected void reduce(Text key, Iterable<FlowBean> values, Context context) throws IOException, InterruptedException {
-            long sum_upFlow=0;
-            long sum_dFlow=0;
+            long sum_upFlow = 0;
+            long sum_dFlow = 0;
             //遍历所有bean，将其中的上行流量，下行流量分别累加
-            for(FlowBean bean:values){
-                sum_upFlow +=bean.getUpFlow();
-                sum_dFlow +=bean.getdFlow();
+            for (FlowBean bean : values) {
+                sum_upFlow += bean.getUpFlow();
+                sum_dFlow += bean.getdFlow();
             }
-            FlowBean resultBean=new FlowBean(sum_upFlow,sum_dFlow);
-            context.write(key,resultBean);
+            FlowBean resultBean = new FlowBean(sum_upFlow, sum_dFlow);
+            context.write(key, resultBean);
         }
     }
+
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         if (args == null || args.length == 0) {
             args = new String[2];
@@ -53,7 +55,7 @@ public class FlowCount {
             args[1] = "hdfs://node1:9000/flowsum/output";
         }
         Configuration conf = new Configuration();
-		/*conf.set("mapreduce.framework.name", "yarn");
+        /*conf.set("mapreduce.framework.name", "yarn");
 		conf.set("yarn.resoucemanager.hostname", "mini1");*/
         Job job = Job.getInstance(conf);
 
@@ -81,6 +83,6 @@ public class FlowCount {
         //将job中配置的相关参数，以及job所用的java类所在的jar包，提交给yarn去运行
 		/*job.submit();*/
         boolean res = job.waitForCompletion(true);
-        System.exit(res?0:1);
+        System.exit(res ? 0 : 1);
     }
 }

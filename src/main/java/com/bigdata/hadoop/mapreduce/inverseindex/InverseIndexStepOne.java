@@ -15,7 +15,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 
 public class InverseIndexStepOne {
-    static  class InverseStepOneMapper extends Mapper<LongWritable,Text,Text,IntWritable>{
+    static class InverseStepOneMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
         Text k = new Text();
         IntWritable v = new IntWritable(1);
 
@@ -24,14 +24,15 @@ public class InverseIndexStepOne {
             String line = value.toString();
             String[] words = line.split(" ");
             FileSplit inputSplit = (FileSplit) context.getInputSplit();
-            String fileName=inputSplit.getPath().getName();
-            for(String word:words){
-                k.set(word+"-"+fileName);
-                context.write(k,v);
+            String fileName = inputSplit.getPath().getName();
+            for (String word : words) {
+                k.set(word + "-" + fileName);
+                context.write(k, v);
             }
         }
     }
-    static class InverseStepOneReducer extends Reducer<Text,IntWritable,Text,IntWritable>{
+
+    static class InverseStepOneReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
 
         @Override
         protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
@@ -44,6 +45,7 @@ public class InverseIndexStepOne {
             context.write(key, new IntWritable(count));
         }
     }
+
     public static void main(String[] args) throws Exception {
 
         Configuration conf = new Configuration();

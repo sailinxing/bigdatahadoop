@@ -17,23 +17,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MapsideJoin {
-    public static  class MapSideJoinMapper extends Mapper<LongWritable,Text,Text,NullWritable>{
+    public static class MapSideJoinMapper extends Mapper<LongWritable, Text, Text, NullWritable> {
         // 用一个hashmap来加载保存产品信息表
         Map<String, String> pdInfoMap = new HashMap<String, String>();
         Text k = new Text();
+
         /**
          * 通过阅读父类Mapper的源码，发现 setup方法是在maptask处理数据之前调用一次 可以用来做一些初始化工作
          */
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
-            BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(new File("D:/testhadoopdata/input/mapjoincache/pdts.txt"))));
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File("D:/testhadoopdata/input/mapjoincache/pdts.txt"))));
             String line;
-            while(StringUtils.isNotEmpty(line=br.readLine())){
+            while (StringUtils.isNotEmpty(line = br.readLine())) {
                 String[] fields = line.split(",");
-                pdInfoMap.put(fields[0],fields[1]);
+                pdInfoMap.put(fields[0], fields[1]);
             }
             br.close();
         }
+
         // 由于已经持有完整的产品信息表，所以在map方法中就能实现join逻辑了
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
@@ -46,6 +48,7 @@ public class MapsideJoin {
 
 
     }
+
     public static void main(String[] args) throws Exception {
 
         Configuration conf = new Configuration();
@@ -62,7 +65,7 @@ public class MapsideJoin {
         FileOutputFormat.setOutputPath(job, new Path("D:/testhadoopdata/output/mapsidejoin"));
 
         // 指定需要缓存一个文件到所有的maptask运行节点工作目录
-		/* job.addArchiveToClassPath(archive); */// 缓存jar包到task运行节点的classpath中
+        /* job.addArchiveToClassPath(archive); */// 缓存jar包到task运行节点的classpath中
 		/* job.addFileToClassPath(file); */// 缓存普通文件到task运行节点的classpath中
 		/* job.addCacheArchive(uri); */// 缓存压缩包文件到task运行节点的工作目录
 		/* job.addCacheFile(uri) */// 缓存普通文件到task运行节点的工作目录

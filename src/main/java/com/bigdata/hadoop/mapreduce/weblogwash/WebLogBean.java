@@ -13,7 +13,6 @@ public class WebLogBean {
     private boolean valid = true;// 判断数据是否合法
 
 
-
     public String getRemote_addr() {
         return remote_addr;
     }
